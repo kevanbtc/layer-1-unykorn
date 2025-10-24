@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  validator-1:
+    image: hyperledger/besu:latest
+    container_name: unykorn-sovereign-validator
+    environment:
+      - BESU_LOGGING=INFO
+    command:
+      - --genesis-file=/config/genesis.json
+      - --rpc-http-enabled
+      - --rpc-http-host=0.0.0.0
+      - --rpc-http-port=8545
+      - --rpc-http-cors-origins=*
+      - --rpc-http-api=ETH,NET,WEB3,ADMIN,DEBUG,TXPOOL,CLIQUE,MINER
+      - --rpc-ws-enabled
+      - --rpc-ws-host=0.0.0.0
+      - --rpc-ws-port=8546
+      - --rpc-ws-api=ETH,NET,WEB3,ADMIN,DEBUG,TXPOOL
+      - --host-allowlist=*
+      - --min-gas-price=0
+      - --miner-enabled
+      - --miner-coinbase=0x9Dc918deBA2d3fc7128A59852b6699CCb2dC0EDB
+      - --data-path=/data
+    volumes:
+      - ./configs:/config
+      - ../data/sovereign:/data
+    ports:
+      - "8555:8545"
+      - "8556:8546"
+    networks:
+      - unykorn-sovereign
+    restart: unless-stopped
+
+networks:
+  unykorn-sovereign:
+    driver: bridge

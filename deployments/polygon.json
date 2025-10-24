@@ -1,0 +1,25 @@
+{
+  "network": "polygon",
+  "chainId": 137,
+  "deployer": "0x9Dc918deBA2d3fc7128A59852b6699CCb2dC0EDB",
+  "timestamp": "2025-10-24T09:06:23.539Z",
+  "block": 78095980,
+  "contracts": {
+    "unyToken": "0x7184F6345Dc6B224544201c3d930673e0F508466",
+    "complianceRegistry": "0x8Ad6484B57aa1072A8F24a5C8e3D3b4f0e49C37E",
+    "vaultProofNFT": "0x05B1d61e640246f9F6ECa2ca0C85682bB19F1557",
+    "launchVault": "0xcDBfE94f4db03853Cc6ddEd4367c218dc8f76b3B",
+    "royaltySplitter": "0xEec6A64d44F135d2B4e799CFd35DD8a03c4184B7",
+    "feeRouter": "0xDE3a9484c549256d6c1256F30C7Fd523F5Fd6023",
+    "licenseNFT": "0x992348BD29c76dBA8aAAF316dcAbbF9f91C81b42",
+    "priceOracle": "0xDc3218061Cf6d49B947e78b83571B806f1101216",
+    "complianceOracle": "0x60Be59aDd5C4c179eED542113fDBcC66b6Ef3c70",
+    "weatherOracle": "0xd0178F66A63c71f164507A7968829bDf7BB070c4",
+    "carbonToken": "0x2b67b5112f002541A1935cA66666Fc28CE3F4fBb",
+    "taxEquityToken": "0x77A9Ab8987097E44569A0333B8DB1284F5bE4758",
+    "trexAdapter": "0x7778833f321d5f0204f32dddD8153FCa7Fb0A8cF",
+    "bufferPool": "0x2A2163f29DDA9450e764cB090e5AaE1a6084C806",
+    "retirementAttestation": "0x7bc6131B51e33F50A714367C62E9df525B34c85a",
+    "recMarketplace": "0xa98DE35dF35522054463148d58951e95e83C1E6c"
+  }
+}

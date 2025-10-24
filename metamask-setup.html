@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unykorn Sovereign L1 - MetaMask Setup</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+        }
+        
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 32px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .status {
+            background: #f0f0f0;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .status-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .status-label {
+            color: #666;
+        }
+        
+        .status-value {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .status-value.live {
+            color: #10b981;
+        }
+        
+        button {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 15px;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: #10b981;
+            color: white;
+        }
+        
+        .btn-info {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .message {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            display: none;
+        }
+        
+        .message.success {
+            background: #d1fae5;
+            color: #065f46;
+            display: block;
+        }
+        
+        .message.error {
+            background: #fee2e2;
+            color: #991b1b;
+            display: block;
+        }
+        
+        .contract-list {
+            background: #f9fafb;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .contract-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 13px;
+        }
+        
+        .contract-item:last-child {
+            border-bottom: none;
+        }
+        
+        .contract-name {
+            font-weight: 600;
+            color: #374151;
+        }
+        
+        .contract-address {
+            font-family: 'Courier New', monospace;
+            color: #6b7280;
+            font-size: 11px;
+        }
+        
+        .info-box {
+            background: #eff6ff;
+            border-left: 4px solid #3b82f6;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        
+        .info-box strong {
+            color: #1e40af;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🦊 Unykorn Sovereign L1</h1>
+        <p class="subtitle">ChainID 7777 • Clique PoA • One-Click MetaMask Setup</p>
+        
+        <div class="status">
+            <div class="status-item">
+                <span class="status-label">Network Status:</span>
+                <span class="status-value live" id="networkStatus">🟢 LIVE</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Chain ID:</span>
+                <span class="status-value">7777 (0x1e61)</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Block Time:</span>
+                <span class="status-value">2 seconds</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Deployed Contracts:</span>
+                <span class="status-value">16</span>
+            </div>
+        </div>
+        
+        <div id="message" class="message"></div>
+        
+        <button class="btn-primary" onclick="addNetwork()">
+            ➕ Add Network to MetaMask
+        </button>
+        
+        <button class="btn-secondary" onclick="addUNYToken()">
+            🪙 Add UNY Token
+        </button>
+        
+        <button class="btn-info" onclick="switchToNetwork()">
+            🔄 Switch to Sovereign L1
+        </button>
+        
+        <div class="info-box">
+            <strong>🌐 PUBLIC NETWORK - LIVE!</strong><br>
+            This chain is publicly accessible at:<br>
+            <code>https://rpc.unykorn.org</code><br>
+            Anyone worldwide can connect to ChainID 7777 via this URL!<br>
+            <small style="color:#6b7280">Tip: If the permanent URL isn't live yet, use your current quick tunnel URL or localhost and refresh this page after updating.</small>
+        </div>
+        
+        <div class="contract-list">
+            <h3 style="margin-bottom: 15px; color: #111827;">📋 Deployed Contracts</h3>
+            <div class="contract-item">
+                <span class="contract-name">UNYToken</span>
+                <span class="contract-address">0x83E2...Fefc</span>
+            </div>
+            <div class="contract-item">
+                <span class="contract-name">LaunchVault</span>
+                <span class="contract-address">0x095d...2B42</span>
+            </div>
+            <div class="contract-item">
+                <span class="contract-name">DeviceOracle</span>
+                <span class="contract-address">0x4697...864a</span>
+            </div>
+            <div class="contract-item">
+                <span class="contract-name">RECMarketplace</span>
+                <span class="contract-address">0xccB9...4563</span>
+            </div>
+            <div style="text-align: center; margin-top: 15px; color: #6b7280; font-size: 12px;">
+                + 12 more contracts (see deployments/unykorn.json)
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const NETWORK_CONFIG = {
+            chainId: '0x1e61', // 7777 in hex
+            chainName: 'Unykorn Sovereign L1',
+            nativeCurrency: {
+                name: 'UNYETH',
+                symbol: 'UNYETH',
+                decimals: 18
+            },
+            rpcUrls: ['https://rpc.unykorn.org','http://127.0.0.1:8555'],
+            blockExplorerUrls: null
+        };
+        
+        const UNY_TOKEN = {
+            type: 'ERC20',
+            options: {
+                address: '0x83E224131A3DB4c11e7D311a0fB1ADeC5aCdFefc',
+                symbol: 'UNY',
+                decimals: 18,
+                image: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xdAC17F958D2ee523a2206206994597C13D831ec7/logo.png' // Placeholder
+            }
+        };
+        
+        function showMessage(text, type) {
+            const messageEl = document.getElementById('message');
+            messageEl.textContent = text;
+            messageEl.className = `message ${type}`;
+            setTimeout(() => {
+                messageEl.style.display = 'none';
+            }, 5000);
+        }
+        
+        async function addNetwork() {
+            if (typeof window.ethereum === 'undefined') {
+                showMessage('❌ MetaMask is not installed! Please install MetaMask browser extension.', 'error');
+                return;
+            }
+            
+            try {
+                await window.ethereum.request({
+                    method: 'wallet_addEthereumChain',
+                    params: [NETWORK_CONFIG]
+                });
+                showMessage('✅ Network added successfully! Switch to Unykorn Sovereign L1 in MetaMask.', 'success');
+            } catch (error) {
+                if (error.code === 4001) {
+                    showMessage('❌ User rejected the request.', 'error');
+                } else {
+                    showMessage(`❌ Error: ${error.message}`, 'error');
+                }
+            }
+        }
+        
+        async function switchToNetwork() {
+            if (typeof window.ethereum === 'undefined') {
+                showMessage('❌ MetaMask is not installed!', 'error');
+                return;
+            }
+            
+            try {
+                await window.ethereum.request({
+                    method: 'wallet_switchEthereumChain',
+                    params: [{ chainId: NETWORK_CONFIG.chainId }]
+                });
+                showMessage('✅ Switched to Unykorn Sovereign L1!', 'success');
+            } catch (error) {
+                if (error.code === 4902) {
+                    // Network not added yet, add it first
+                    await addNetwork();
+                } else if (error.code === 4001) {
+                    showMessage('❌ User rejected the request.', 'error');
+                } else {
+                    showMessage(`❌ Error: ${error.message}`, 'error');
+                }
+            }
+        }
+        
+        async function addUNYToken() {
+            if (typeof window.ethereum === 'undefined') {
+                showMessage('❌ MetaMask is not installed!', 'error');
+                return;
+            }
+            
+            try {
+                // First, make sure we're on the right network
+                const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+                if (chainId !== NETWORK_CONFIG.chainId) {
+                    showMessage('⚠️ Please switch to Unykorn Sovereign L1 first!', 'error');
+                    return;
+                }
+                
+                const wasAdded = await window.ethereum.request({
+                    method: 'wallet_watchAsset',
+                    params: UNY_TOKEN
+                });
+                
+                if (wasAdded) {
+                    showMessage('✅ UNY Token added to MetaMask!', 'success');
+                } else {
+                    showMessage('❌ Failed to add UNY Token', 'error');
+                }
+            } catch (error) {
+                showMessage(`❌ Error: ${error.message}`, 'error');
+            }
+        }
+        
+        // Check if MetaMask is connected and on the right network
+        async function checkConnection() {
+            if (typeof window.ethereum !== 'undefined') {
+                try {
+                    const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+                    if (chainId === NETWORK_CONFIG.chainId) {
+                        showMessage('✅ Connected to Unykorn Sovereign L1!', 'success');
+                    }
+                } catch (error) {
+                    console.error('Connection check failed:', error);
+                }
+            }
+        }
+        
+        // Listen for network changes
+        if (typeof window.ethereum !== 'undefined') {
+            window.ethereum.on('chainChanged', (chainId) => {
+                if (chainId === NETWORK_CONFIG.chainId) {
+                    showMessage('✅ Connected to Unykorn Sovereign L1!', 'success');
+                }
+            });
+        }
+        
+        // Check connection on page load
+        window.addEventListener('load', checkConnection);
+    </script>
+</body>
+</html>

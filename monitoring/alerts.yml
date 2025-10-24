@@ -1,0 +1,207 @@
+# Prometheus Alert Rules for Unykorn L1
+# Critical alerts for validator health, block production, and system issues
+
+groups:
+  - name: validator_alerts
+    interval: 30s
+    rules:
+      # Validator Down Alert
+      - alert: ValidatorDown
+        expr: up{job="besu-validators"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          component: validator
+        annotations:
+          summary: "Validator {{ $labels.instance }} is down"
+          description: "Validator {{ $labels.instance }} has been unreachable for more than 2 minutes. Immediate action required."
+
+      # Block Production Stalled
+      - alert: BlockProductionStalled
+        expr: rate(besu_blockchain_height[5m]) == 0
+        for: 3m
+        labels:
+          severity: critical
+          component: consensus
+        annotations:
+          summary: "Block production has stalled"
+          description: "No new blocks have been produced in the last 3 minutes. Check validator consensus."
+
+      # Low Peer Count on Validator
+      - alert: ValidatorLowPeers
+        expr: besu_peers_connected_total{job="besu-validators"} < 2
+        for: 5m
+        labels:
+          severity: warning
+          component: networking
+        annotations:
+          summary: "Validator {{ $labels.instance }} has low peer count"
+          description: "Validator {{ $labels.instance }} has {{ $value }} peers. Expected at least 2 for redundancy."
+
+      # High Memory Usage
+      - alert: ValidatorHighMemory
+        expr: (container_memory_usage_bytes{name=~"unykorn-validator.*"} / container_spec_memory_limit_bytes{name=~"unykorn-validator.*"}) > 0.9
+        for: 5m
+        labels:
+          severity: warning
+          component: resources
+        annotations:
+          summary: "Validator {{ $labels.name }} high memory usage"
+          description: "Validator {{ $labels.name }} is using {{ $value | humanizePercentage }} of available memory."
+
+      # High CPU Usage
+      - alert: ValidatorHighCPU
+        expr: rate(container_cpu_usage_seconds_total{name=~"unykorn-validator.*"}[5m]) > 1.8
+        for: 10m
+        labels:
+          severity: warning
+          component: resources
+        annotations:
+          summary: "Validator {{ $labels.name }} high CPU usage"
+          description: "Validator {{ $labels.name }} CPU usage is {{ $value | humanize }} (>90% of 2 cores)."
+
+  - name: sentry_alerts
+    interval: 30s
+    rules:
+      # Sentry RPC Node Down
+      - alert: SentryNodeDown
+        expr: up{job="besu-sentries"} == 0
+        for: 2m
+        labels:
+          severity: warning
+          component: rpc
+        annotations:
+          summary: "Sentry node {{ $labels.instance }} is down"
+          description: "Public RPC sentry {{ $labels.instance }} has been unreachable for 2 minutes."
+
+      # High RPC Request Rate
+      - alert: HighRPCLoad
+        expr: rate(besu_rpc_request_time_seconds_count{job="besu-sentries"}[5m]) > 1000
+        for: 10m
+        labels:
+          severity: info
+          component: rpc
+        annotations:
+          summary: "High RPC request rate on {{ $labels.instance }}"
+          description: "Sentry {{ $labels.instance }} is handling {{ $value | humanize }} req/s. Consider scaling."
+
+      # Sync Lagging
+      - alert: SentrySyncLagging
+        expr: (besu_blockchain_height{job="besu-validators"} - besu_blockchain_height{job="besu-sentries"}) > 10
+        for: 5m
+        labels:
+          severity: warning
+          component: sync
+        annotations:
+          summary: "Sentry {{ $labels.instance }} sync is lagging"
+          description: "Sentry is {{ $value }} blocks behind validators. Check network connectivity."
+
+  - name: system_alerts
+    interval: 60s
+    rules:
+      # Disk Space Low
+      - alert: DiskSpaceLow
+        expr: (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) < 0.15
+        for: 10m
+        labels:
+          severity: warning
+          component: storage
+        annotations:
+          summary: "Low disk space on host"
+          description: "Disk space is below 15% ({{ $value | humanizePercentage }} remaining). Plan for expansion."
+
+      # Disk Space Critical
+      - alert: DiskSpaceCritical
+        expr: (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) < 0.05
+        for: 5m
+        labels:
+          severity: critical
+          component: storage
+        annotations:
+          summary: "Critical disk space on host"
+          description: "Disk space is critically low ({{ $value | humanizePercentage }} remaining). Immediate action required!"
+
+      # High Network Errors
+      - alert: HighNetworkErrors
+        expr: rate(node_network_receive_errs_total[5m]) > 100
+        for: 5m
+        labels:
+          severity: warning
+          component: networking
+        annotations:
+          summary: "High network errors detected"
+          description: "Network interface is experiencing {{ $value }} errors/sec."
+
+  - name: consensus_alerts
+    interval: 30s
+    rules:
+      # Missed Block Proposals
+      - alert: MissedBlockProposals
+        expr: increase(besu_blockchain_difficulty_total[10m]) < 290  # Expected ~300 blocks in 10min (2s blocks)
+        for: 5m
+        labels:
+          severity: warning
+          component: consensus
+        annotations:
+          summary: "Validators are missing block proposals"
+          description: "Only {{ $value }} blocks produced in last 10 minutes (expected ~300). Check validator health."
+
+      # Chain Reorganization Detected
+      - alert: ChainReorg
+        expr: increase(besu_blockchain_chain_head_reorgs_total[5m]) > 0
+        labels:
+          severity: critical
+          component: consensus
+        annotations:
+          summary: "Chain reorganization detected"
+          description: "{{ $value }} chain reorgs in last 5 minutes. This should NEVER happen in QBFT. Investigate immediately!"
+
+  - name: database_alerts
+    interval: 60s
+    rules:
+      # Postgres Down
+      - alert: PostgresDown
+        expr: up{job="postgres"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          component: database
+        annotations:
+          summary: "PostgreSQL database is down"
+          description: "Blockscout database is unreachable. Explorer will be offline."
+
+      # High Database Connections
+      - alert: HighDatabaseConnections
+        expr: pg_stat_database_numbackends > 80
+        for: 5m
+        labels:
+          severity: warning
+          component: database
+        annotations:
+          summary: "High PostgreSQL connection count"
+          description: "Database has {{ $value }} active connections. Max is typically 100."
+
+  - name: monitoring_alerts
+    interval: 60s
+    rules:
+      # Prometheus Scrape Failures
+      - alert: PrometheusScrapeFailing
+        expr: up == 0
+        for: 5m
+        labels:
+          severity: warning
+          component: monitoring
+        annotations:
+          summary: "Prometheus scrape failing for {{ $labels.job }}/{{ $labels.instance }}"
+          description: "Target {{ $labels.instance }} cannot be scraped. Check if service is running."
+
+      # Grafana Down
+      - alert: GrafanaDown
+        expr: up{job="grafana"} == 0
+        for: 5m
+        labels:
+          severity: info
+          component: monitoring
+        annotations:
+          summary: "Grafana dashboard is down"
+          description: "Grafana monitoring interface is unreachable."

@@ -1,0 +1,431 @@
+# Production Docker Compose - Unykorn L1 Mainnet
+# Validator + Sentry + Monitoring + Explorer Stack
+# WARNING: Use production keys, not dev keys!
+
+version: '3.8'
+
+networks:
+  internal:
+    driver: bridge
+    internal: true  # No internet access for validators
+  external:
+    driver: bridge
+  monitoring:
+    driver: bridge
+
+volumes:
+  prometheus_data:
+  grafana_data:
+  postgres_data:
+  blockscout_data:
+
+services:
+  # ============================================================================
+  # VALIDATORS (Private Network - No Public Exposure)
+  # ============================================================================
+  
+  validator-0:
+    image: hyperledger/besu:24.1
+    container_name: unykorn-validator-0
+    restart: unless-stopped
+    networks:
+      - internal
+      - monitoring
+    volumes:
+      - ./production/validator-0:/data
+      - ./production/genesis.json:/genesis/genesis.json:ro
+      - ./production/jwt-secret.hex:/secrets/jwt-secret.hex:ro
+    environment:
+      - BESU_LOGGING=INFO
+      - JAVA_OPTS=-Xmx4g -Xms4g
+    command:
+      - --data-path=/data
+      - --genesis-file=/genesis/genesis.json
+      - --network-id=7777
+      - --rpc-http-enabled=false
+      - --rpc-ws-enabled=false
+      - --p2p-host=validator-0
+      - --p2p-port=30303
+      - --host-allowlist=validator-0,validator-1,validator-2,validator-3,sentry-0,sentry-1
+      - --engine-jwt-secret=/secrets/jwt-secret.hex
+      - --engine-host-allowlist=localhost
+      - --metrics-enabled=true
+      - --metrics-host=0.0.0.0
+      - --metrics-port=9545
+      - --max-peers=25
+      - --sync-mode=FULL
+      - --pruning-enabled=true
+      - --pruning-blocks-retained=1024
+      - --logging=JSON
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 8G
+        reservations:
+          cpus: '1'
+          memory: 4G
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9545/metrics"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  validator-1:
+    image: hyperledger/besu:24.1
+    container_name: unykorn-validator-1
+    restart: unless-stopped
+    networks:
+      - internal
+      - monitoring
+    volumes:
+      - ./production/validator-1:/data
+      - ./production/genesis.json:/genesis/genesis.json:ro
+      - ./production/jwt-secret.hex:/secrets/jwt-secret.hex:ro
+    environment:
+      - BESU_LOGGING=INFO
+      - JAVA_OPTS=-Xmx4g -Xms4g
+    command:
+      - --data-path=/data
+      - --genesis-file=/genesis/genesis.json
+      - --network-id=7777
+      - --rpc-http-enabled=false
+      - --rpc-ws-enabled=false
+      - --p2p-host=validator-1
+      - --p2p-port=30303
+      - --host-allowlist=validator-0,validator-1,validator-2,validator-3,sentry-0,sentry-1
+      - --bootnodes=enode://VALIDATOR_0_PUBKEY@validator-0:30303
+      - --engine-jwt-secret=/secrets/jwt-secret.hex
+      - --metrics-enabled=true
+      - --metrics-host=0.0.0.0
+      - --metrics-port=9545
+      - --max-peers=25
+      - --sync-mode=FULL
+      - --pruning-enabled=true
+      - --logging=JSON
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 8G
+
+  validator-2:
+    image: hyperledger/besu:24.1
+    container_name: unykorn-validator-2
+    restart: unless-stopped
+    networks:
+      - internal
+      - monitoring
+    volumes:
+      - ./production/validator-2:/data
+      - ./production/genesis.json:/genesis/genesis.json:ro
+      - ./production/jwt-secret.hex:/secrets/jwt-secret.hex:ro
+    environment:
+      - BESU_LOGGING=INFO
+      - JAVA_OPTS=-Xmx4g -Xms4g
+    command:
+      - --data-path=/data
+      - --genesis-file=/genesis/genesis.json
+      - --network-id=7777
+      - --rpc-http-enabled=false
+      - --rpc-ws-enabled=false
+      - --p2p-host=validator-2
+      - --p2p-port=30303
+      - --host-allowlist=validator-0,validator-1,validator-2,validator-3,sentry-0,sentry-1
+      - --bootnodes=enode://VALIDATOR_0_PUBKEY@validator-0:30303
+      - --engine-jwt-secret=/secrets/jwt-secret.hex
+      - --metrics-enabled=true
+      - --metrics-host=0.0.0.0
+      - --metrics-port=9545
+      - --max-peers=25
+      - --sync-mode=FULL
+      - --pruning-enabled=true
+      - --logging=JSON
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 8G
+
+  validator-3:
+    image: hyperledger/besu:24.1
+    container_name: unykorn-validator-3
+    restart: unless-stopped
+    networks:
+      - internal
+      - monitoring
+    volumes:
+      - ./production/validator-3:/data
+      - ./production/genesis.json:/genesis/genesis.json:ro
+      - ./production/jwt-secret.hex:/secrets/jwt-secret.hex:ro
+    environment:
+      - BESU_LOGGING=INFO
+      - JAVA_OPTS=-Xmx4g -Xms4g
+    command:
+      - --data-path=/data
+      - --genesis-file=/genesis/genesis.json
+      - --network-id=7777
+      - --rpc-http-enabled=false
+      - --rpc-ws-enabled=false
+      - --p2p-host=validator-3
+      - --p2p-port=30303
+      - --host-allowlist=validator-0,validator-1,validator-2,validator-3,sentry-0,sentry-1
+      - --bootnodes=enode://VALIDATOR_0_PUBKEY@validator-0:30303
+      - --engine-jwt-secret=/secrets/jwt-secret.hex
+      - --metrics-enabled=true
+      - --metrics-host=0.0.0.0
+      - --metrics-port=9545
+      - --max-peers=25
+      - --sync-mode=FULL
+      - --pruning-enabled=true
+      - --logging=JSON
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 8G
+
+  # ============================================================================
+  # SENTRY NODES (Public-Facing RPC)
+  # ============================================================================
+
+  sentry-0:
+    image: hyperledger/besu:24.1
+    container_name: unykorn-sentry-0
+    restart: unless-stopped
+    networks:
+      - internal
+      - external
+      - monitoring
+    ports:
+      - "8545:8545"   # JSON-RPC
+      - "8546:8546"   # WebSocket
+      - "30303:30303" # P2P
+    volumes:
+      - ./production/sentry-0:/data
+      - ./production/genesis.json:/genesis/genesis.json:ro
+      - ./production/jwt-secret.hex:/secrets/jwt-secret.hex:ro
+    environment:
+      - BESU_LOGGING=INFO
+      - JAVA_OPTS=-Xmx8g -Xms4g
+    command:
+      - --data-path=/data
+      - --genesis-file=/genesis/genesis.json
+      - --network-id=7777
+      - --rpc-http-enabled=true
+      - --rpc-http-host=0.0.0.0
+      - --rpc-http-port=8545
+      - --rpc-http-api=ETH,NET,WEB3,TXPOOL
+      - --rpc-http-cors-origins=*
+      - --rpc-ws-enabled=true
+      - --rpc-ws-host=0.0.0.0
+      - --rpc-ws-port=8546
+      - --rpc-ws-api=ETH,NET,WEB3
+      - --p2p-host=0.0.0.0
+      - --p2p-port=30303
+      - --bootnodes=enode://VALIDATOR_0_PUBKEY@validator-0:30303
+      - --engine-jwt-secret=/secrets/jwt-secret.hex
+      - --metrics-enabled=true
+      - --metrics-host=0.0.0.0
+      - --metrics-port=9545
+      - --max-peers=100
+      - --sync-mode=FAST
+      - --fast-sync-min-peers=3
+      - --logging=JSON
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 16G
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8545"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  sentry-1:
+    image: hyperledger/besu:24.1
+    container_name: unykorn-sentry-1
+    restart: unless-stopped
+    networks:
+      - internal
+      - external
+      - monitoring
+    ports:
+      - "8547:8545"
+      - "8548:8546"
+      - "30304:30303"
+    volumes:
+      - ./production/sentry-1:/data
+      - ./production/genesis.json:/genesis/genesis.json:ro
+      - ./production/jwt-secret.hex:/secrets/jwt-secret.hex:ro
+    environment:
+      - BESU_LOGGING=INFO
+      - JAVA_OPTS=-Xmx8g -Xms4g
+    command:
+      - --data-path=/data
+      - --genesis-file=/genesis/genesis.json
+      - --network-id=7777
+      - --rpc-http-enabled=true
+      - --rpc-http-host=0.0.0.0
+      - --rpc-http-port=8545
+      - --rpc-http-api=ETH,NET,WEB3,TXPOOL
+      - --rpc-http-cors-origins=*
+      - --rpc-ws-enabled=true
+      - --rpc-ws-host=0.0.0.0
+      - --rpc-ws-port=8546
+      - --p2p-host=0.0.0.0
+      - --p2p-port=30303
+      - --bootnodes=enode://VALIDATOR_0_PUBKEY@validator-0:30303
+      - --metrics-enabled=true
+      - --metrics-host=0.0.0.0
+      - --metrics-port=9545
+      - --max-peers=100
+      - --sync-mode=FAST
+      - --logging=JSON
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 16G
+
+  # ============================================================================
+  # MONITORING STACK
+  # ============================================================================
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: unykorn-prometheus
+    restart: unless-stopped
+    networks:
+      - monitoring
+    ports:
+      - "9090:9090"
+    volumes:
+      - prometheus_data:/prometheus
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/alerts.yml:/etc/prometheus/alerts.yml:ro
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=30d'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: unykorn-grafana
+    restart: unless-stopped
+    networks:
+      - monitoring
+      - external
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana-dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./monitoring/grafana-datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml:ro
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=CHANGE_ME_IN_PRODUCTION
+      - GF_INSTALL_PLUGINS=grafana-clock-panel
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: unykorn-node-exporter
+    restart: unless-stopped
+    networks:
+      - monitoring
+    command:
+      - '--path.rootfs=/host'
+    volumes:
+      - '/:/host:ro,rslave'
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+
+  # ============================================================================
+  # BLOCKSCOUT EXPLORER
+  # ============================================================================
+
+  postgres:
+    image: postgres:14
+    container_name: unykorn-postgres
+    restart: unless-stopped
+    networks:
+      - monitoring
+    environment:
+      POSTGRES_DB: blockscout
+      POSTGRES_USER: blockscout
+      POSTGRES_PASSWORD: CHANGE_ME_IN_PRODUCTION
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+
+  blockscout:
+    image: blockscout/blockscout:latest
+    container_name: unykorn-blockscout
+    restart: unless-stopped
+    networks:
+      - monitoring
+      - external
+    ports:
+      - "4000:4000"
+    environment:
+      DATABASE_URL: postgresql://blockscout:CHANGE_ME_IN_PRODUCTION@postgres:5432/blockscout?ssl=false
+      ETHEREUM_JSONRPC_VARIANT: besu
+      ETHEREUM_JSONRPC_HTTP_URL: http://sentry-0:8545
+      ETHEREUM_JSONRPC_WS_URL: ws://sentry-0:8546
+      COIN: UNYETH
+      LOGO: /images/unykorn_logo.svg
+      LOGO_FOOTER: /images/unykorn_logo.svg
+      NETWORK: Unykorn L1
+      SUBNETWORK: Mainnet
+      CHAIN_ID: 7777
+      SECRET_KEY_BASE: CHANGE_ME_TO_RANDOM_64_CHAR_STRING
+    depends_on:
+      - postgres
+      - sentry-0
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+
+  # ============================================================================
+  # NGINX REVERSE PROXY (HTTPS Termination)
+  # ============================================================================
+
+  nginx:
+    image: nginx:alpine
+    container_name: unykorn-nginx
+    restart: unless-stopped
+    networks:
+      - external
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./production/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./production/ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - sentry-0
+      - sentry-1
+      - grafana
+      - blockscout
+    deploy:
+      resources:
+        limits:
+          memory: 512M

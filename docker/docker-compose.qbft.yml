@@ -1,0 +1,113 @@
+version: '3.8'
+
+services:
+  validator-1:
+    image: hyperledger/besu:latest
+    container_name: unykorn-validator-1
+    environment:
+      - BESU_LOGGING=INFO
+    command:
+      - --genesis-file=/config/genesis-qbft.json
+      - --rpc-http-enabled
+      - --rpc-http-host=0.0.0.0
+      - --rpc-http-port=8545
+      - --rpc-http-cors-origins=*
+      - --rpc-http-api=ETH,NET,WEB3,ADMIN,DEBUG,TXPOOL,QBFT,MINER
+      - --rpc-ws-enabled
+      - --rpc-ws-host=0.0.0.0
+      - --rpc-ws-port=8546
+      - --rpc-ws-api=ETH,NET,WEB3,ADMIN,DEBUG,TXPOOL,QBFT
+      - --host-allowlist=*
+      - --min-gas-price=0
+      - --miner-enabled
+      - --miner-coinbase=0x9Dc918deBA2d3fc7128A59852b6699CCb2dC0EDB
+      - --p2p-enabled=true
+      - --p2p-host=0.0.0.0
+      - --p2p-port=30303
+      - --discovery-enabled=false
+      - --bootnodes=enode://validator2@validator-2:30303,enode://validator3@validator-3:30303
+      - --data-path=/data
+    volumes:
+      - ./configs:/config
+      - ../data/validator-1:/data
+    ports:
+      - "8545:8545"
+      - "8546:8546"
+      - "30303:30303"
+    networks:
+      unykorn-qbft:
+        ipv4_address: 172.25.0.10
+    restart: unless-stopped
+
+  validator-2:
+    image: hyperledger/besu:latest
+    container_name: unykorn-validator-2
+    environment:
+      - BESU_LOGGING=INFO
+    command:
+      - --genesis-file=/config/genesis-qbft.json
+      - --rpc-http-enabled
+      - --rpc-http-host=0.0.0.0
+      - --rpc-http-port=8545
+      - --rpc-http-cors-origins=*
+      - --rpc-http-api=ETH,NET,WEB3,ADMIN,DEBUG,TXPOOL,QBFT
+      - --host-allowlist=*
+      - --min-gas-price=0
+      - --miner-enabled
+      - --miner-coinbase=0x9Dc918deBA2d3fc7128A59852b6699CCb2dC0EDB
+      - --p2p-enabled=true
+      - --p2p-host=0.0.0.0
+      - --p2p-port=30303
+      - --discovery-enabled=false
+      - --bootnodes=enode://validator1@validator-1:30303,enode://validator3@validator-3:30303
+      - --data-path=/data
+    volumes:
+      - ./configs:/config
+      - ../data/validator-2:/data
+    ports:
+      - "8555:8545"
+      - "30313:30303"
+    networks:
+      unykorn-qbft:
+        ipv4_address: 172.25.0.11
+    restart: unless-stopped
+
+  validator-3:
+    image: hyperledger/besu:latest
+    container_name: unykorn-validator-3
+    environment:
+      - BESU_LOGGING=INFO
+    command:
+      - --genesis-file=/config/genesis-qbft.json
+      - --rpc-http-enabled
+      - --rpc-http-host=0.0.0.0
+      - --rpc-http-port=8545
+      - --rpc-http-cors-origins=*
+      - --rpc-http-api=ETH,NET,WEB3,ADMIN,DEBUG,TXPOOL,QBFT
+      - --host-allowlist=*
+      - --min-gas-price=0
+      - --miner-enabled
+      - --miner-coinbase=0x9Dc918deBA2d3fc7128A59852b6699CCb2dC0EDB
+      - --p2p-enabled=true
+      - --p2p-host=0.0.0.0
+      - --p2p-port=30303
+      - --discovery-enabled=false
+      - --bootnodes=enode://validator1@validator-1:30303,enode://validator2@validator-2:30303
+      - --data-path=/data
+    volumes:
+      - ./configs:/config
+      - ../data/validator-3:/data
+    ports:
+      - "8565:8545"
+      - "30323:30303"
+    networks:
+      unykorn-qbft:
+        ipv4_address: 172.25.0.12
+    restart: unless-stopped
+
+networks:
+  unykorn-qbft:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.25.0.0/16

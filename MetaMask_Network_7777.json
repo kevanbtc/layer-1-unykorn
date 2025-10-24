@@ -1,0 +1,15 @@
+{
+  "chainId": "0x1e61",
+  "chainName": "Unykorn Sovereign L1",
+  "nativeCurrency": {
+    "name": "UNYETH",
+    "symbol": "UNYETH",
+    "decimals": 18
+  },
+  "rpcUrls": [
+    "https://rpc.unykorn.org",
+    "http://127.0.0.1:8555"
+  ],
+  "blockExplorerUrls": null,
+  "iconUrls": []
+}

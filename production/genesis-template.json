@@ -1,0 +1,47 @@
+# Production Genesis Configuration for Unykorn L1 Mainnet
+# Chain ID: 7777
+# Consensus: QBFT (Quorum Byzantine Fault Tolerance)
+# 
+# CRITICAL: Replace validator addresses with your REAL production addresses
+# NEVER use dev account addresses in production!
+
+{
+  "config": {
+    "chainId": 7777,
+    "homesteadBlock": 0,
+    "eip150Block": 0,
+    "eip155Block": 0,
+    "eip158Block": 0,
+    "byzantiumBlock": 0,
+    "constantinopleBlock": 0,
+    "petersburgBlock": 0,
+    "istanbulBlock": 0,
+    "berlinBlock": 0,
+    "londonBlock": 0,
+    "qbft": {
+      "epochlength": 30000,
+      "blockperiodseconds": 2,
+      "requesttimeoutseconds": 10,
+      "blockreward": "0",
+      "miningbeneficiary": "0x0000000000000000000000000000000000000000",
+      "validatorcontractaddress": "0x0000000000000000000000000000000000000000"
+    }
+  },
+  "nonce": "0x0",
+  "timestamp": "0x654A8C00",
+  "gasLimit": "0x2FAF080",
+  "difficulty": "0x1",
+  "mixHash": "0x63746963616c2062797a616e74696e65206661756c7420746f6c6572616e6365",
+  "coinbase": "0x0000000000000000000000000000000000000000",
+  "alloc": {
+    "0x0000000000000000000000000000000000000000": {
+      "comment": "REPLACE WITH TREASURY ADDRESS",
+      "balance": "1000000000000000000000000000"
+    },
+    "0x1111111111111111111111111111111111111111": {
+      "comment": "REPLACE WITH FOUNDATION ADDRESS",
+      "balance": "500000000000000000000000000"
+    }
+  },
+  "extraData": "0xf87aa00000000000000000000000000000000000000000000000000000000000000000f8549400000000000000000000000000000000000000009400000000000000000000000000000000000000009400000000000000000000000000000000000000009400000000000000000000000000000000000000008080c0"
+}

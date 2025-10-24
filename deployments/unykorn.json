@@ -1,0 +1,25 @@
+{
+  "network": "unykorn",
+  "chainId": 7777,
+  "deployer": "0x9Dc918deBA2d3fc7128A59852b6699CCb2dC0EDB",
+  "timestamp": "2025-10-24T19:26:30.443Z",
+  "block": 20,
+  "contracts": {
+    "unyToken": "0x83E224131A3DB4c11e7D311a0fB1ADeC5aCdFefc",
+    "complianceRegistry": "0x57fc2850F71AbA6d48491287531F9a5eca1050cc",
+    "vaultProofNFT": "0x7740a1abA4792314199EF4a616da626C1459029D",
+    "launchVault": "0x095d22Df643fd7297f40009194FeBA346ea52B42",
+    "royaltySplitter": "0x09B742c644Ce6499DE68bdBf1c38F1347A4abc7c",
+    "feeRouter": "0x64d9f3f95478BCf196a2C546Db3fBD4E0f18aD58",
+    "licenseNFT": "0x6dfeEDAD2dD83D556F64E3FeE59ecCcB963CD0dB",
+    "priceOracle": "0x4697BA98BfDDA5ED316965d5904eC21a6405864a",
+    "complianceOracle": "0x2F0ca69374652f712466e991EAEE0b92a80C42C7",
+    "weatherOracle": "0x01A2aDe3D339097300B53f9Db83c1852F6412088",
+    "carbonToken": "0xCfa349b5149Ec607C4A5C96Bd16a99bb67259Ddc",
+    "taxEquityToken": "0x04258006d540C163795Da896D8d7D0b1BA7c3B58",
+    "trexAdapter": "0x31fDA153Ce08a56461945Be6264F25C47CF2e0A9",
+    "bufferPool": "0x86473e23E6F44766dc3063B4A0cac8Cf3035D6c4",
+    "retirementAttestation": "0x9FcEA87a13adf747Ad9c225aa7AC8D75683094e1",
+    "recMarketplace": "0xccB91b45AACf122BF79a6203b3BE37EFEabD4563"
+  }
+}

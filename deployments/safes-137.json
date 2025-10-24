@@ -1,0 +1,90 @@
+{
+  "network": "polygon",
+  "chainId": 137,
+  "timestamp": "2025-10-24T00:00:00.000Z",
+  "deployer": "0x9Dc918deBA2d3fc7128A59852b6699CCb2dC0EDB",
+  "safes": {
+    "ADMIN_SAFE": {
+      "address": "0x1106F3838Bb670BCd50367278655EC8144F20C08",
+      "threshold": 3,
+      "description": "Governance, protocol upgrades, DEFAULT_ADMIN_ROLE",
+      "purpose": "High-security governance operations requiring 3-of-5 consensus",
+      "controls": [
+        "DEFAULT_ADMIN_ROLE on all contracts",
+        "Protocol upgrades (if UUPS)",
+        "Safe threshold changes",
+        "New Safe owner additions",
+        "Critical parameter changes"
+      ]
+    },
+    "TREASURY_SAFE": {
+      "address": "0x7b2f2772E9748aA60a39c54450c5f86393D8F85E",
+      "threshold": 2,
+      "description": "Fees, royalties, withdrawals, all fee recipients",
+      "purpose": "Financial operations requiring 2-of-3 consensus",
+      "controls": [
+        "RoyaltySplitter recipient",
+        "FeeRouter recipient",
+        "Marketplace fee withdrawals",
+        "LaunchVault fee withdrawals",
+        "Treasury fund management"
+      ]
+    },
+    "COMPLIANCE_SAFE": {
+      "address": "0xf2710eF527d790F1Abf2263dff5112e8e12b8b9E",
+      "threshold": 2,
+      "description": "KYC/AML, freezes, pauses, allowlists",
+      "purpose": "Compliance and security operations requiring 2-of-3 consensus",
+      "controls": [
+        "ComplianceRegistry ownership",
+        "Address allowlist/blocklist",
+        "Token freezes",
+        "Contract pauses",
+        "Compliance attestations"
+      ]
+    },
+    "OPS_SAFE": {
+      "address": "0x7Fd4E5F3a94b69828c98bcA09C4591C5A6d07c63",
+      "threshold": 2,
+      "description": "Markets, oracles, LaunchVault, daily operations",
+      "purpose": "Operational tasks requiring 2-of-3 consensus",
+      "controls": [
+        "LaunchVault ownership",
+        "RECMarketplace configuration",
+        "DeviceOracle updates",
+        "Fee parameter adjustments",
+        "Day-to-day operations"
+      ]
+    },
+    "GUARDIAN_EOA": {
+      "address": "0x9Dc918deBA2d3fc7128A59852b6699CCb2dC0EDB",
+      "description": "Emergency pause only (no spending authority)",
+      "type": "EOA",
+      "purpose": "Emergency pause capability - MUST BE UPDATED TO HARDWARE WALLET",
+      "controls": [
+        "Emergency pause on all pausable contracts",
+        "NO spending authority",
+        "NO admin roles",
+        "NO ownership rights"
+      ],
+      "warning": "⚠️ CURRENTLY SET TO DEPLOYER - UPDATE TO COLD STORAGE HARDWARE WALLET ASAP"
+    }
+  },
+  "security": {
+    "deployer_status": "ACTIVE - Will be revoked after wire:safes script",
+    "multisig_coverage": "100% - All contracts controlled by Safes",
+    "hardware_wallet_required": true,
+    "guardian_status": "⚠️ TEMPORARY - Must update to hardware wallet",
+    "audit_status": "Pending - Trail of Bits scheduled",
+    "insurance": "Pending - Nexus Mutual $10M coverage planned"
+  },
+  "next_steps": [
+    "1. Update GUARDIAN_EOA to real hardware wallet address (cold storage)",
+    "2. Deploy 16 contracts to network (npm run deploy:energy:polygon or :unykorn)",
+    "3. Wire ownerships to Safes (npm run wire:safes:polygon or :unykorn)",
+    "4. Verify deployer fully revoked",
+    "5. Test Safe operations (pause/unpause, fee change, etc.)",
+    "6. Integrate Sonny AI with Safe SDK",
+    "7. Deploy Safe services (Tx, Events, Config, Client Gateway)"
+  ]
+}

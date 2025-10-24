@@ -1,0 +1,75 @@
+# Prometheus Configuration for Unykorn L1
+# Scrapes metrics from validators, sentries, and node exporter
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'unykorn-mainnet'
+    network: 'layer1'
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          # - 'alertmanager:9093'  # Uncomment if using Alertmanager
+
+# Load alert rules
+rule_files:
+  - 'alerts.yml'
+
+# Scrape configurations
+scrape_configs:
+  # Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Besu Validators (internal network only)
+  - job_name: 'besu-validators'
+    static_configs:
+      - targets:
+          - 'validator-0:9545'
+          - 'validator-1:9545'
+          - 'validator-2:9545'
+          - 'validator-3:9545'
+        labels:
+          group: 'validators'
+    metrics_path: '/metrics'
+    scrape_interval: 10s
+
+  # Besu Sentry Nodes (public-facing)
+  - job_name: 'besu-sentries'
+    static_configs:
+      - targets:
+          - 'sentry-0:9545'
+          - 'sentry-1:9545'
+        labels:
+          group: 'sentries'
+    metrics_path: '/metrics'
+    scrape_interval: 10s
+
+  # Node Exporter (system metrics)
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets:
+          - 'node-exporter:9100'
+        labels:
+          group: 'infrastructure'
+
+  # Grafana
+  - job_name: 'grafana'
+    static_configs:
+      - targets:
+          - 'grafana:3000'
+        labels:
+          group: 'monitoring'
+
+  # Postgres (Blockscout DB)
+  - job_name: 'postgres'
+    static_configs:
+      - targets:
+          - 'postgres:5432'
+        labels:
+          group: 'database'

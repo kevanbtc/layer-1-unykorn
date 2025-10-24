@@ -1,0 +1,82 @@
+version: '3.8'
+
+services:
+  # Besu Validator Node 1
+  besu-validator-1:
+    image: hyperledger/besu:latest
+    container_name: unykorn-besu-validator-1
+    restart: unless-stopped
+    ports:
+      - "8545:8545"   # RPC
+      - "8546:8546"   # WebSocket
+      - "30303:30303" # P2P
+    environment:
+      - BESU_LOGGING=INFO
+    volumes:
+      - besu-data-1:/opt/besu/data
+      - ./configs:/config
+    command:
+      - --data-path=/opt/besu/data
+      - --network=dev
+      - --rpc-http-enabled=true
+      - --rpc-http-host=0.0.0.0
+      - --rpc-http-port=8545
+      - --rpc-http-api=ETH,NET,WEB3,ADMIN,DEBUG,TXPOOL,MINER
+      - --rpc-http-cors-origins=*
+      - --rpc-ws-enabled=true
+      - --rpc-ws-host=0.0.0.0
+      - --rpc-ws-port=8546
+      - --rpc-ws-api=ETH,NET,WEB3
+      - --host-allowlist=*
+      - --min-gas-price=0
+      - --miner-enabled=true
+      - --miner-coinbase=0x9Dc918deBA2d3fc7128A59852b6699CCb2dC0EDB
+      - --rpc-http-max-active-connections=80
+    networks:
+      - unykorn-network
+
+  # Besu Validator Node 2 (for multi-node consensus)
+  besu-validator-2:
+    image: hyperledger/besu:latest
+    container_name: unykorn-besu-validator-2
+    restart: unless-stopped
+    ports:
+      - "8547:8545"   # RPC (alternate port)
+      - "30304:30303" # P2P (alternate port)
+    environment:
+      - BESU_LOGGING=INFO
+    volumes:
+      - besu-data-2:/opt/besu/data
+      - ./configs:/config
+    command:
+      - --data-path=/opt/besu/data
+      - --genesis-file=/config/genesis.json
+      - --network-id=7777
+      - --rpc-http-enabled=true
+      - --rpc-http-host=0.0.0.0
+      - --rpc-http-port=8545
+      - --rpc-http-api=ETH,NET,WEB3,ADMIN,DEBUG
+      - --rpc-http-cors-origins=*
+      - --host-allowlist=*
+      - --min-gas-price=0
+      - --miner-enabled=true
+      - --miner-coinbase=0x9Dc918deBA2d3fc7128A59852b6699CCb2dC0EDB
+      - --p2p-enabled=true
+      - --p2p-host=0.0.0.0
+      - --p2p-port=30303
+      - --bootnodes=enode://besu-validator-1@besu-validator-1:30303
+      - --discovery-enabled=false
+    networks:
+      - unykorn-network
+    depends_on:
+      - besu-validator-1
+
+volumes:
+  besu-data-1:
+    driver: local
+  besu-data-2:
+    driver: local
+
+networks:
+  unykorn-network:
+    driver: bridge
