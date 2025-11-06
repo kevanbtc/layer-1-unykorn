@@ -172,15 +172,36 @@ npx hardhat run scripts/deploy.ts --network mainnet
 
 ## 📖 Documentation Index
 
+### Getting Started
 | Document | Purpose | Audience |
 |----------|---------|----------|
 | **[QUICK_START.md](docs/QUICK_START.md)** | Get running in 2 minutes | Everyone |
 | **[QUICKSTART_WINDOWS.md](QUICKSTART_WINDOWS.md)** | Windows-specific instructions | Windows users |
+| **[CONTRIBUTING.md](CONTRIBUTING.md)** | Contribution guidelines | Contributors |
+| **[CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)** | Community guidelines | Everyone |
+
+### Architecture & Technical
+| Document | Purpose | Audience |
+|----------|---------|----------|
 | **[ARCHITECTURE.md](docs/ARCHITECTURE.md)** | Consensus, EVM, networking deep-dive | Developers |
+| **[ARCHITECTURE_DIAGRAMS.md](docs/ARCHITECTURE_DIAGRAMS.md)** | Visual architecture & flow diagrams | Architects |
+| **[SOLIDITY_SECURITY.md](docs/SOLIDITY_SECURITY.md)** | Smart contract security best practices | Smart Contract Devs |
+| **[GAS_OPTIMIZATION.md](docs/GAS_OPTIMIZATION.md)** | Gas optimization techniques | Smart Contract Devs |
+| **[VSCODE_SETUP.md](docs/VSCODE_SETUP.md)** | IDE integration & tasks | Developers |
+
+### Operations & Security
+| Document | Purpose | Audience |
+|----------|---------|----------|
 | **[MAINNET_LAUNCH.md](docs/MAINNET_LAUNCH.md)** | 8-phase launch checklist | DevOps/Founders |
 | **[PRODUCTION_SECURITY.md](docs/PRODUCTION_SECURITY.md)** | Hardening & best practices | Security teams |
+| **[SECURITY.md](SECURITY.md)** | Security policy & bug bounty | Security Researchers |
 | **[TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md)** | Common issues & solutions | Support teams |
-| **[VSCODE_SETUP.md](docs/VSCODE_SETUP.md)** | IDE integration & tasks | Developers |
+
+### Business & Enterprise
+| Document | Purpose | Audience |
+|----------|---------|----------|
+| **[ENTERPRISE_ADOPTION.md](docs/ENTERPRISE_ADOPTION.md)** | Enterprise integration guide | Executives/Architects |
+| **[ROADMAP.md](ROADMAP.md)** | Development roadmap & vision | Stakeholders |
 
 ---
 
