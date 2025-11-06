@@ -1,0 +1,69 @@
+name: Deploy Contracts
+
+on:
+  workflow_dispatch:
+    inputs:
+      network:
+        description: 'Network to deploy to'
+        required: true
+        type: choice
+        options:
+          - unykorn
+          - polygon
+          - mainnet
+      
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  deploy:
+    name: Deploy to ${{ github.event.inputs.network }}
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.network }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Compile contracts
+        run: npx hardhat compile
+        
+      - name: Run pre-deployment checks
+        run: |
+          echo "Deploying to network: ${{ github.event.inputs.network }}"
+          npx hardhat compile
+          
+      - name: Deploy contracts
+        env:
+          DEPLOYER_PK: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
+          UNYKORN_RPC: ${{ secrets.UNYKORN_RPC_URL }}
+          POLYGON_RPC: ${{ secrets.POLYGON_RPC_URL }}
+          MAINNET_RPC_URL: ${{ secrets.MAINNET_RPC_URL }}
+        run: |
+          npx hardhat run scripts/deploy.ts --network ${{ github.event.inputs.network }}
+          
+      - name: Verify contracts
+        env:
+          POLYGONSCAN_API_KEY: ${{ secrets.POLYGONSCAN_API_KEY }}
+        run: |
+          if [ "${{ github.event.inputs.network }}" == "polygon" ]; then
+            npm run verify:polygon
+          fi
+        continue-on-error: true
+        
+      - name: Upload deployment artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployment-${{ github.event.inputs.network }}-${{ github.run_number }}
+          path: |
+            deployments/
+            artifacts/
